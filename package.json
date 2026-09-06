@@ -1,0 +1,12 @@
+{
+  "name": "tarot-day",
+  "version": "1.0.0",
+  "description": "Расклад Таро на день — компактное веб-приложение без зависимостей",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}

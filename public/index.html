@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Таро на день</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌙</text></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="stars" aria-hidden="true"></div>
+
+  <main class="app">
+    <header class="header">
+      <div class="moon-mark" aria-hidden="true">☽</div>
+      <h1>Таро на день</h1>
+      <p class="date" id="date"></p>
+    </header>
+
+    <section id="start-screen">
+      <p class="intro">
+        Сосредоточьтесь на своём дне и откройте три карты —
+        они подскажут, что несёт утро, день и вечер.
+      </p>
+      <button id="deal-btn" class="btn">Открыть расклад дня</button>
+      <p class="hint" id="start-hint">Расклад дня одинаков в течение суток</p>
+    </section>
+
+    <section id="spread-screen" class="hidden">
+      <div id="cards" class="cards"></div>
+      <div class="controls">
+        <button id="reveal-btn" class="btn btn-secondary hidden">Открыть все карты</button>
+        <button id="shuffle-btn" class="btn btn-secondary hidden">Перетасовать заново</button>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>22 старших аркана · расклад носит развлекательный характер</p>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
