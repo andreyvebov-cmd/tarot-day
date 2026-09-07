@@ -5,7 +5,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const { SLOTS, ARCANA } = require('./data/tarot');
+const { SLOTS, drawSpread, hashSeed, mulberry32, localDateStr } = require('./data/tarot');
 
 const BASE_PORT = Number(process.env.PORT) || 3000;
 const PUBLIC_DIR = path.join(__dirname, 'public');
@@ -19,44 +19,6 @@ const MIME = {
   '.png': 'image/png',
   '.ico': 'image/x-icon'
 };
-
-// --- Сидированный ГПСЧ (mulberry32) — расклад дня одинаков в течение суток ---
-function mulberry32(seed) {
-  return function () {
-    let t = (seed += 0x6d2b79f5);
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-function hashSeed(str) {
-  let h = 2166136261;
-  for (let i = 0; i < str.length; i++) {
-    h ^= str.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return h >>> 0;
-}
-
-function localDateStr(d = new Date()) {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-}
-
-// Три различные карты из колоды; каждая — в прямом или перевёрнутом положении.
-function drawSpread(rand) {
-  const pool = ARCANA.slice();
-  const picked = [];
-  for (let i = 0; i < SLOTS.length; i++) {
-    const idx = Math.floor(rand() * pool.length);
-    const card = pool.splice(idx, 1)[0];
-    picked.push({ ...card, isReversed: rand() < 0.5 });
-  }
-  return picked;
-}
 
 function sendJson(res, status, data) {
   res.writeHead(status, {
@@ -102,6 +64,20 @@ const server = http.createServer((req, res) => {
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     res.writeHead(405, { 'Content-Type': 'text/plain; charset=utf-8' });
     res.end('Method Not Allowed');
+    return;
+  }
+
+  // Общий модуль данных для браузера (на статике его кладёт workflow).
+  if (url.pathname === '/tarot-data.js') {
+    fs.readFile(path.join(__dirname, 'data', 'tarot.js'), (err, data) => {
+      if (err) {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+        res.end('404 Not Found');
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8' });
+      res.end(data);
+    });
     return;
   }
 

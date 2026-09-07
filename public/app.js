@@ -2,6 +2,7 @@
 'use strict';
 
 const $ = (sel) => document.querySelector(sel);
+const TAROT = window.TAROT;
 
 const els = {
   date: $('#date'),
@@ -16,23 +17,36 @@ const els = {
 let spread = null; // { date, slots, cards }
 
 // --- Загрузка расклада ---
+// Расклад берём с сервера, если он есть; на статичном хостинге
+// (GitHub Pages) считаем локально тем же алгоритмом.
+async function getSpread(shuffle) {
+  if (!shuffle) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 5000);
+    try {
+      const res = await fetch('api/spread', { signal: controller.signal });
+      if (res.ok) return res.json();
+    } catch (err) {
+      // сервера нет — не страшно, посчитаем сами
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  const date = TAROT.localDateStr();
+  const rand = shuffle ? Math.random : TAROT.mulberry32(TAROT.hashSeed(`tarot-${date}`));
+  return { date, slots: TAROT.SLOTS, cards: TAROT.drawSpread(rand) };
+}
+
 async function loadSpread(shuffle = false) {
   els.dealBtn.disabled = true;
   els.dealBtn.textContent = 'Карты тасуются…';
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 5000);
   try {
-    const res = await fetch('/api/spread' + (shuffle ? '?shuffle=1' : ''), { signal: controller.signal });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    spread = await res.json();
+    spread = await getSpread(shuffle);
     showSpread();
   } catch (err) {
-    showError(err.name === 'AbortError'
-      ? 'Сервер не отвечает. Убедитесь, что он запущен (node server.js), и попробуйте снова.'
-      : 'Не удалось получить расклад. Проверьте, что сервер запущен, и попробуйте снова.');
+    showError('Что-то пошло не так. Обновите страницу и попробуйте снова.');
     console.error(err);
   } finally {
-    clearTimeout(timer);
     els.dealBtn.disabled = false;
     els.dealBtn.textContent = 'Открыть расклад дня';
   }
