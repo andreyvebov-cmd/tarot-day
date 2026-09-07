@@ -75,6 +75,20 @@ tarot-day/
 
 `GET /api/spread?shuffle=1` — случайный расклад.
 
+## Пост в Telegram-канал
+
+Скрипт `telegram.js` публикует расклад дня в Telegram-канал (тот же алгоритм, что на сайте — пост совпадает с раскладом дня). Запуск автоматизирован workflow-ом `.github/workflows/telegram.yml`: каждый день в **09:00 по Минску** (cron в UTC настраивается в файле).
+
+Разовая настройка:
+
+1. Создайте бота у [@BotFather](https://t.me/BotFather) (или возьмите токен существующего) и добавьте бота администратором в канал с правом «Публикация сообщений».
+2. В репозитории: **Settings → Secrets and variables → Actions → New repository secret**:
+   - `TG_BOT_TOKEN` — токен бота от BotFather;
+   - `TG_CHANNEL_ID` — `@имя_канала` для публичного или числовой `-100…` для приватного (узнать ID: `TG_BOT_TOKEN=… node telegram.js --chats` после пересылки боту сообщения из канала).
+3. Проверка: вкладка **Actions → Post to Telegram → Run workflow**.
+
+Локально: `TG_BOT_TOKEN=… TG_CHANNEL_ID=@… node telegram.js` (текст без отправки — `TG_TEST=1`).
+
 ---
 
 *Проект носит развлекательный характер.* ✦

@@ -1,0 +1,25 @@
+name: Post to Telegram
+
+on:
+  schedule:
+    - cron: '0 6 * * *'   # 06:00 UTC = 09:00 по Минску
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Опубликовать расклад дня в канал
+        run: node telegram.js
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHANNEL_ID: ${{ secrets.TG_CHANNEL_ID }}
