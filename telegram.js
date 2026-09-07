@@ -67,8 +67,8 @@ async function main() {
   }
 
   if (!token || !chatId) {
-    console.log('Секреты TG_BOT_TOKEN и TG_CHANNEL_ID не заданы — публикация пропущена.');
-    return;
+    throw new Error('Не заданы секреты репозитория: TG_BOT_TOKEN и/или TG_CHANNEL_ID ' +
+      '(Settings → Secrets and variables → Actions → New repository secret).');
   }
 
   const sent = await telegramApi(token, 'sendMessage', {
